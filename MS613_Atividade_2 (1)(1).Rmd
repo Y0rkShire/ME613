@@ -1,7 +1,7 @@
 ---
 title: "Atividade 02"
 subtitle: "ME613"
-output: html_document
+output: pdf_document
 ---
 
 
@@ -79,8 +79,8 @@ D) Calcule, usando o R, a estatística do teste para $H_0: \beta_1=0$. Apresente
 
 ```{r}
 # coloque os comandos para os cálculos
-b1_hat/erro_b1
-pt(b1_hat/erro_b1,8)
+sumario <- summary(lm(wt ~ ht,data = Htwt))
+sumario$coefficients
 ```
 
 
@@ -89,9 +89,12 @@ E) Calcule, usando o R, um intervalo de confiança de 95\% para $\beta_1$.
 
 ```{r}
 # coloque os comandos para os cálculos
-# 2.752 da tabela
-c(b1_hat -2.306*erro_b1,b1_hat + 2.306*erro_b1)
+# 2.306 da tabela temos o seguinte intervalo
+# Os calculos foram feitos direto no markdown de seguinte forma
+# P(`r b1_hat -2.306*erro_b1` $\le \beta_1 \le$ `r b1_hat +2.306*erro_b1`) = 95%
 ```
+
+P(`r b1_hat -2.306*erro_b1` $\le \beta_1 \le$ `r b1_hat +2.306*erro_b1`) = 95%
 
 F) Apresente os resultados usando as funções `lm`, `vcov` e `confint`.
 
@@ -148,20 +151,21 @@ Cov_b0_b1_height <- -s_2_height*x_bar_height/s_xx_height
 ```
 
 ```{r}
-c(-2.576,2.576)*erro_b1_height+b1_hat_height
-
-lm(wt~ht, data = Htwt)
-confint(lm(dheight~mheight, data = Heights))
+#Os calculos realizados foram os mesmo já apresentados, e os valores 2.576 vieram da tabela t-student com n graus de liberdade afinal o valor da amostra é muito grande
+# feito da seguinte forma c(-2.576,2.576)*erro_b1_height+b1_hat_height
 ```
+
+P(`r -2.576*erro_b1_height+b1_hat_height` $\le \beta_1 \le$ `r -2.576*erro_b1_height+b1_hat_height`) = 99%
 
 C) Apresente um intervalo de predição de 99\% para a altura filha cuja mãe tem 64 polegadas de altura.
 
-
 ```{r}
 # coloque os comandos para os cálculos
-c(-2.576,2.576)*sqrt(s_2_height*(1+1/1375+((64-x_bar_height)^2)/s_xx_height))+64*b1_hat_height+b0_hat_height
+proporção <- sqrt(s_2_height*(1+1/1375+((64-x_bar_height)^2)/s_xx_height))+64*b1_hat_height+b0_hat_height
+c(-2.576,2.576)*proporção
 ```
 
+P(`r -2.576*proporção` $\le Y_e \le$ `r 2.576*proporção`) = 99%
 
 **Exercício 4** Em muitos problemas, o analista de dados pode focar no erro de predição médio de um modelo de regressão para descrever a acurácia esperada para predições futuras ou para ajudar na escolha entre modelos de regressão alternativos que podem ter sido ajustados aos dados. Quando temos um tamanho amostral suficiente, podemos usar a técnica de *validação cruzada*. A técnica consiste em dividirmos os dados em duas partes que podemos chamar de *treino* e *validação*. O subconjunto *treino* é utilizado para ajustar o modelo e obter as estimativas e o subconjunto *validação* é usado para testar a acurácia das predições.
 
@@ -171,8 +175,10 @@ Considerando apenas o subconjunto *treino*, ajuste um modelo de regressão.
 ```{r}
 # coloque os comandos
 set.seed(204244)
-treino <- Heights[sample(c(1:length(Heights[,1])),size = round(2*length(Heights[,1])/3),replace = FALSE),]
-validação <- Heights[-sample(c(1:length(Heights[,1])),size = round(2*length(Heights[,1])/3),replace = FALSE),]
+treino <- Heights[sample(c(1:length(Heights[,1]))
+                         ,size = round(2*length(Heights[,1])/3),replace = FALSE),]
+validação <- Heights[-sample(c(1:length(Heights[,1]))
+                             ,size = round(2*length(Heights[,1])/3),replace = FALSE),]
 ```
 
 ```{r}
@@ -217,3 +223,7 @@ validação$predição <- validação$mheight * b1_hat_treino + b0_hat_treino
 RSME_validação <- sqrt(mean((validação$dheight-validação$predição)^2))
 ```
 
+$RSME_{treino} = $ `r RSME_treino`
+$RSME_{validação} = $ `r RSME_validação`
+
+Os valores tem pouca disparidade entre si, isso se deve pelo treino ter sido feito sob uma amostra de mesma distribuição que a validação
