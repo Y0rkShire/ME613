@@ -1,0 +1,219 @@
+---
+title: "Atividade 02"
+subtitle: "ME613"
+output: html_document
+---
+
+
+
+**Exercício 1** Leia o enunciado do [Exercício 1.6 do Weisberg](https://ebookcentral.proquest.com/lib/unicamp-ebooks/reader.action?docID=7103845&ppg=41). O conjunto de dados tem nome `Rateprof` e está disponível no pacote `alr4`.
+
+```{r, message=FALSE}
+#install.packages("alr4")
+library(alr4)
+data("Rateprof")
+```
+
+Apresente abaixo o código R para fazer um gráfico similar ao apresentado no enunciado. Comente sobre as relações entre as notas dos cinco quesitos avaliados.
+
+```{r}
+pairs(Rateprof[,c(8,10,9,11,12)])
+```
+
+**Exercício 2** O conjunto de dados `Htwt` do pacote `alr4`
+
+```{r, echo=FALSE}
+data(Htwt)
+library(knitr)
+kable(Htwt)
+```
+
+apresenta dados para altura em centímetros (`ht`) e peso em kilogramas (`wt`) para uma amostra de $n=`r dim(Htwt)[1]`$ meninas de 18 anos. Há interesse em predizer o peso a partir da altura.
+
+A) Apresente um diagrama de dispersão e use o mesmo para argumentar sobre uma regressão linear simples nos dados parecer ou não apropriada.
+
+```{r, echo=FALSE}
+# coloque os comandos para o gráfico aqui
+plot(Htwt)
+```
+R:Como é possível observar os dados estão bem dispersos e aparentemente sem nenhuma relação linear entre as variáveis, portanto talvez não seja a melhor escolha uma regressão linear nesse conjunto de dados
+
+
+B) Calcule, usando o R, os valores de $\bar{x}$, $\bar{y}$, $S_{XX}$, $S_{YY}$, $S_{XY}$. Calcule as estimativas para $\beta_0$ e $\beta_1$ da regressão linear de $Y$ em $X$ usando os valores calculados. Apresente novamente o gráfico de dispersão, mas agora incluindo a reta ajustada.
+
+```{r}
+# coloque os comandos para os cálculos
+x_bar <- mean(Htwt$ht)
+y_bar <- mean(Htwt$wt)
+s_xx <- sum((Htwt$ht-x_bar)^2)
+s_yy <- sum((Htwt$wt-y_bar)^2)
+s_xy <- sum((Htwt$ht-x_bar)*(Htwt$wt-y_bar))
+
+b1_hat <- s_xy/s_xx
+b0_hat <- y_bar - b1_hat*x_bar
+
+plot(Htwt)
+abline(a=b0_hat,b=b1_hat,col = "red")
+```
+
+C) Calcule, usando o R, uma estimativa para $\sigma^2$ e encontre os erros padrões de $\hat{\beta}_0$ e $\hat{\beta}_1$. Calcule $\widehat{Cov}(\hat{\beta}_0,\hat{\beta}_1)$. 
+
+```{r}
+# coloque os comandos para os cálculos
+y_hat <- b0_hat + b1_hat*Htwt$ht
+
+s_2 <- (sum((Htwt$wt-y_hat)^2))/8
+
+var_b1 <- (s_2)/s_xx
+var_b0 <- s_2*((1/10)+(x_bar^2)/(s_xx))
+
+erro_b0 <- sqrt(var_b0)
+erro_b1 <- sqrt(var_b1)
+
+Cov_b0_b1 <- -s_2*x_bar/s_xx 
+```
+
+Como $s^2$ é o estimador não viciado para $\sigma^2$ 
+
+D) Calcule, usando o R, a estatística do teste para $H_0: \beta_1=0$. Apresente o p-valor para o teste bilateral. 
+
+```{r}
+# coloque os comandos para os cálculos
+b1_hat/erro_b1
+pt(b1_hat/erro_b1,8)
+```
+
+
+
+E) Calcule, usando o R, um intervalo de confiança de 95\% para $\beta_1$.
+
+```{r}
+# coloque os comandos para os cálculos
+# 2.752 da tabela
+c(b1_hat -2.306*erro_b1,b1_hat + 2.306*erro_b1)
+```
+
+F) Apresente os resultados usando as funções `lm`, `vcov` e `confint`.
+
+```{r}
+# coloque os comandos para os cálculos
+lm(wt~ht, data = Htwt)
+vcov(lm(wt~ht, data = Htwt))
+confint(lm(wt~ht, data = Htwt))
+```
+
+
+
+**Exercício 3** Utilize o conjunto de dados `Heights` do pacote `alr4`.
+
+```{r, echo=FALSE}
+data(Heights)
+```
+
+A) Ajuste a regressão linear de `dheight` em `mheight`. Apresente as estimativas, erros-padrão, coeficiente de determinação e estimativa da variância do erro. Escreva uma ou duas sentenças que resumam os resultados encontrados com esses cálculos.
+
+
+```{r}
+# coloque os comandos para os cálculos
+x_bar_height <- mean(Heights$mheight)
+y_bar_height <- mean(Heights$dheight)
+s_xx_height <- sum((Heights$mheight-x_bar_height)^2)
+s_yy_height <- sum((Heights$dheight-y_bar_height)^2)
+s_xy_height <- sum((Heights$mheight-x_bar_height)*(Heights$dheight-y_bar_height))
+
+b1_hat_height <- s_xy_height/s_xx_height
+b0_hat_height <- y_bar_height - b1_hat_height*x_bar_height
+
+plot(Heights)
+abline(a=b0_hat_height,b=b1_hat_height,col = "red")
+```
+
+
+B) Apresente um intervalo de confiança para $\beta_1$ de 99\%.
+
+
+```{r, echo=FALSE}
+# coloque os comandos para os cálculos
+y_hat_height <- b0_hat_height + b1_hat_height*Heights$mheight
+
+s_2_height <- (sum((Heights$dheight-y_hat_height)^2))/1373
+
+var_b1_height <- (s_2_height)/s_xx_height
+var_b0_height <- s_2_height*((1/1375)+(x_bar_height^2)/(s_xx_height))
+
+erro_b0_height <- sqrt(var_b0_height)
+erro_b1_height <- sqrt(var_b1_height)
+
+Cov_b0_b1_height <- -s_2_height*x_bar_height/s_xx_height 
+```
+
+```{r}
+c(-2.576,2.576)*erro_b1_height+b1_hat_height
+
+lm(wt~ht, data = Htwt)
+confint(lm(dheight~mheight, data = Heights))
+```
+
+C) Apresente um intervalo de predição de 99\% para a altura filha cuja mãe tem 64 polegadas de altura.
+
+
+```{r}
+# coloque os comandos para os cálculos
+c(-2.576,2.576)*sqrt(s_2_height*(1+1/1375+((64-x_bar_height)^2)/s_xx_height))+64*b1_hat_height+b0_hat_height
+```
+
+
+**Exercício 4** Em muitos problemas, o analista de dados pode focar no erro de predição médio de um modelo de regressão para descrever a acurácia esperada para predições futuras ou para ajudar na escolha entre modelos de regressão alternativos que podem ter sido ajustados aos dados. Quando temos um tamanho amostral suficiente, podemos usar a técnica de *validação cruzada*. A técnica consiste em dividirmos os dados em duas partes que podemos chamar de *treino* e *validação*. O subconjunto *treino* é utilizado para ajustar o modelo e obter as estimativas e o subconjunto *validação* é usado para testar a acurácia das predições.
+
+A) Considere o conjunto de dados do exercício anterior. Selecione, ao acaso, aproximadamente $2/3$ dos dados para o *treino* (use o comando `set.seed` com o seu RA). O $1/3$ restante serão o subconjunto *validação*.
+Considerando apenas o subconjunto *treino*, ajuste um modelo de regressão.
+
+```{r}
+# coloque os comandos
+set.seed(204244)
+treino <- Heights[sample(c(1:length(Heights[,1])),size = round(2*length(Heights[,1])/3),replace = FALSE),]
+validação <- Heights[-sample(c(1:length(Heights[,1])),size = round(2*length(Heights[,1])/3),replace = FALSE),]
+```
+
+```{r}
+x_bar_treino <- mean(treino$mheight)
+y_bar_treino  <- mean(treino$dheight)
+s_xx_treino  <- sum((treino$mheight-x_bar_treino )^2)
+s_yy_treino  <- sum((treino$dheight-y_bar_treino )^2)
+s_xy_treino  <- sum((treino$mheight-x_bar_treino )*(treino$dheight-y_bar_treino ))
+
+b1_hat_treino  <- s_xy_treino/s_xx_treino 
+b0_hat_treino <- y_bar_treino - b1_hat_treino*x_bar_treino
+
+plot(treino)
+abline(a=b0_hat_treino,b=b1_hat_treino,col = "red")
+```
+
+B) Considerando o modelo de regressão ajustado, obtenha predições usando os valores de `Mheight` do subconjunto *validação*. Calcule a média dos quadrados dos resíduos. A raíz quadrada deste valor é conhecida como *RMSE* (*root mean square error*).
+
+Compare *RMSE* do subconjunto *validação* com o *RMSE* do subconjunto *treino*.
+
+
+```{r}
+# coloque os comandos
+y_hat_treino <- b0_hat_treino + b1_hat_treino*treino$mheight
+
+s_2_treino <- (sum((treino$dheight-y_hat_treino)^2))/1373
+
+var_b1_treino <- (s_2_treino)/s_xx_treino
+var_b0_treino <- s_2_treino*((1/1375)+(x_bar_treino^2)/(s_xx_treino))
+
+erro_b0_treino <- sqrt(var_b0_treino)
+erro_b1_treino <- sqrt(var_b1_treino)
+
+Cov_b0_b1_treino <- -s_2_treino*x_bar_treino/s_xx_treino 
+```
+
+```{r}
+treino$predição <- treino$mheight * b1_hat_treino + b0_hat_treino
+RSME_treino <- sqrt(mean((treino$dheight-treino$predição)^2))
+
+validação$predição <- validação$mheight * b1_hat_treino + b0_hat_treino
+RSME_validação <- sqrt(mean((validação$dheight-validação$predição)^2))
+```
+
