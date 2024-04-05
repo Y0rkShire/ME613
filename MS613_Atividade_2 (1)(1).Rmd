@@ -8,7 +8,7 @@ output: pdf_document
 
 **Exercício 1** Leia o enunciado do [Exercício 1.6 do Weisberg](https://ebookcentral.proquest.com/lib/unicamp-ebooks/reader.action?docID=7103845&ppg=41). O conjunto de dados tem nome `Rateprof` e está disponível no pacote `alr4`.
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 #install.packages("alr4")
 library(alr4)
 data("Rateprof")
@@ -22,7 +22,7 @@ pairs(Rateprof[,c(8,10,9,11,12)])
 
 **Exercício 2** O conjunto de dados `Htwt` do pacote `alr4`
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 data(Htwt)
 library(knitr)
 kable(Htwt)
